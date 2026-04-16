@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Hotel, Bus, Car, Clock, CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Layout from '@/components/Layout';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { formatRupiah } from '@/data/dummy';
+import { Bus, Car, Clock, CheckCircle2, XCircle, AlertCircle, Loader2, LucideIcon } from 'lucide-react';
+import { Badge } from '@/shared/ui/badge';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Button } from '@/shared/ui/button';
+import Layout from '@/shared/components/Layout';
+import { useAuth } from '@/features/auth/AuthContext';
+import { supabase } from '@/shared/integrations/supabase/client';
+import { formatRupiah } from '@/shared/data/dummy';
 
 type BookingStatus = 'menunggu' | 'dikonfirmasi' | 'selesai' | 'dibatalkan';
 
-const statusConfig: Record<BookingStatus, { label: string; color: string; icon: any }> = {
+const statusConfig: Record<BookingStatus, { label: string; color: string; icon: LucideIcon }> = {
   menunggu: { label: 'Menunggu', color: 'bg-yellow-100 text-yellow-800', icon: AlertCircle },
   dikonfirmasi: { label: 'Dikonfirmasi', color: 'bg-blue-100 text-blue-800', icon: Clock },
   selesai: { label: 'Selesai', color: 'bg-green-100 text-green-800', icon: CheckCircle2 },
@@ -21,13 +21,18 @@ const statusConfig: Record<BookingStatus, { label: string; color: string; icon: 
 interface Booking {
   id: string;
   code: string;
-  type: string;
-  status: string;
+  type: 'ride' | 'shuttle';
+  status: BookingStatus;
   details: string;
   guest_name: string;
   total_price: number;
   booking_date: string;
 }
+
+const typeConfig: Record<string, { icon: LucideIcon }> = {
+  ride: { icon: Car },
+  shuttle: { icon: Bus },
+};
 
 export default function Orders() {
   const { user, loading: authLoading } = useAuth();
@@ -44,7 +49,7 @@ export default function Orders() {
         .from('bookings')
         .select('*')
         .order('created_at', { ascending: false });
-      if (!error && data) setBookings(data);
+      if (!error && data) setBookings(data as Booking[]);
       setLoading(false);
     };
     fetchBookings();
@@ -72,16 +77,18 @@ export default function Orders() {
           </div>
         ) : (
           <div className="space-y-4">
-            {bookings.map((booking) => {
-              const status = statusConfig[booking.status as BookingStatus] || statusConfig.menunggu;
+            {bookings.map((booking: Booking) => {
+              const status = statusConfig[booking.status] || statusConfig.menunggu;
               const StatusIcon = status.icon;
+              const type = typeConfig[booking.type] || typeConfig.shuttle;
+              const TypeIcon = type.icon;
               return (
                 <Card key={booking.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-5">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
                         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          {booking.type === 'hotel' ? <Hotel className="h-5 w-5 text-primary" /> : booking.type === 'ride' ? <Car className="h-5 w-5 text-primary" /> : <Bus className="h-5 w-5 text-primary" />}
+                          <TypeIcon className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2 mb-1">

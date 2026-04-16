@@ -1,10 +1,9 @@
 import { Mail, Phone, MessageCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import Layout from '@/components/Layout';
+import { Card, CardContent } from '@/shared/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/shared/ui/accordion';
+import Layout from '@/shared/components/Layout';
 
 const faqs = [
-  { q: 'Bagaimana cara memesan hotel?', a: 'Cari hotel di halaman utama, pilih hotel dan tipe kamar, isi data tamu, lalu klik "Pesan Sekarang".' },
   { q: 'Bagaimana cara membatalkan pesanan?', a: 'Buka halaman Pesanan, temukan pesanan yang ingin dibatalkan, dan klik tombol batalkan. Kebijakan refund berlaku sesuai ketentuan.' },
   { q: 'Apakah bisa memilih kursi di shuttle?', a: 'Ya! Saat memesan shuttle, Anda bisa memilih kursi yang tersedia melalui peta kursi.' },
   { q: 'Metode pembayaran apa saja yang tersedia?', a: 'Saat ini kami mendukung transfer bank, kartu kredit/debit, dan e-wallet.' },

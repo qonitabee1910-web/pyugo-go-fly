@@ -1,17 +1,17 @@
 import { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Star, Phone, Car, Bike, UserRound } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import Layout from '@/components/Layout';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { rideServices, dummyDrivers, formatRupiah } from '@/data/dummy';
-import { useToast } from '@/hooks/use-toast';
+import { MapPin, Star, Phone, Car, Bike, UserRound, LucideIcon } from 'lucide-react';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Card, CardContent } from '@/shared/ui/card';
+import Layout from '@/shared/components/Layout';
+import { useAuth } from '@/features/auth/AuthContext';
+import { supabase } from '@/shared/integrations/supabase/client';
+import { rideServices, dummyDrivers, formatRupiah } from '@/shared/data/dummy';
+import { useToast } from '@/shared/hooks/use-toast';
 
-const serviceIcons: Record<string, any> = {
+const serviceIcons: Record<string, LucideIcon> = {
   bike: Bike,
   'user-round': UserRound,
   car: Car,
@@ -53,6 +53,7 @@ export default function RideBook() {
   const handleBook = async () => {
     if (!user) { navigate('/login'); return; }
     if (!name.trim()) { toast({ title: 'Masukkan nama penumpang', variant: 'destructive' }); return; }
+    if (!phone.trim() || phone.length < 10) { toast({ title: 'Masukkan nomor HP yang valid', variant: 'destructive' }); return; }
 
     setLoading(true);
     const code = `PYU-RDE-${Date.now().toString(36).toUpperCase()}`;

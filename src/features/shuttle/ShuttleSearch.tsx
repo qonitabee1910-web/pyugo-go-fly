@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Clock, MapPin, Users, SlidersHorizontal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import Layout from '@/components/Layout';
-import { shuttles, formatRupiah } from '@/data/dummy';
+import { Users, SlidersHorizontal } from 'lucide-react';
+import { Button } from '@/shared/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
+import { Badge } from '@/shared/ui/badge';
+import Layout from '@/shared/components/Layout';
+import { shuttles, formatRupiah, Shuttle } from '@/shared/data/dummy';
 
 export default function ShuttleSearch() {
   const [params] = useSearchParams();
@@ -15,14 +15,14 @@ export default function ShuttleSearch() {
   const [sort, setSort] = useState('price-asc');
   const [operatorFilter, setOperatorFilter] = useState('all');
 
-  const operators = [...new Set(shuttles.map((s) => s.operator))];
+  const operators = [...new Set(shuttles.map((s: Shuttle) => s.operator))];
 
   const filtered = useMemo(() => {
     let list = shuttles;
-    if (origin) list = list.filter((s) => s.origin.toLowerCase().includes(origin.toLowerCase()));
-    if (dest) list = list.filter((s) => s.destination.toLowerCase().includes(dest.toLowerCase()));
-    if (operatorFilter !== 'all') list = list.filter((s) => s.operator === operatorFilter);
-    list = [...list].sort((a, b) => {
+    if (origin) list = list.filter((s: Shuttle) => s.origin.toLowerCase().includes(origin.toLowerCase()));
+    if (dest) list = list.filter((s: Shuttle) => s.destination.toLowerCase().includes(dest.toLowerCase()));
+    if (operatorFilter !== 'all') list = list.filter((s: Shuttle) => s.operator === operatorFilter);
+    list = [...list].sort((a: Shuttle, b: Shuttle) => {
       if (sort === 'price-asc') return a.price - b.price;
       if (sort === 'price-desc') return b.price - a.price;
       if (sort === 'time') return a.departureTime.localeCompare(b.departureTime);
@@ -66,7 +66,7 @@ export default function ShuttleSearch() {
         </div>
 
         <div className="grid gap-4">
-          {filtered.map((shuttle) => (
+          {filtered.map((shuttle: Shuttle) => (
             <div
               key={shuttle.id}
               className="bg-card rounded-xl border shadow-sm p-5 cursor-pointer hover:shadow-md transition-shadow"
@@ -96,7 +96,7 @@ export default function ShuttleSearch() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-3">
-                    {shuttle.facilities.map((f) => (
+                    {shuttle.facilities.map((f: string) => (
                       <Badge key={f} variant="outline" className="text-xs font-normal">{f}</Badge>
                     ))}
                   </div>

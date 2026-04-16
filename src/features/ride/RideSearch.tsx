@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Bike, Car, UserRound, Clock, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import Layout from '@/components/Layout';
-import { cities, rideServices, formatRupiah } from '@/data/dummy';
+import { MapPin, Bike, Car, UserRound, Clock, ArrowRight, ArrowsUpDown, Loader2, LucideIcon } from 'lucide-react';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Card, CardContent } from '@/shared/ui/card';
+import Layout from '@/shared/components/Layout';
+import { cities, rideServices, formatRupiah } from '@/shared/data/dummy';
 
-const serviceIcons: Record<string, any> = {
+const serviceIcons: Record<string, LucideIcon> = {
   bike: Bike,
   'user-round': UserRound,
   car: Car,
@@ -23,6 +23,7 @@ export default function RideSearch() {
   const [destination, setDestination] = useState(searchParams.get('dest') || '');
   const [distance, setDistance] = useState<number | null>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     if (pickup && destination) {
@@ -32,8 +33,18 @@ export default function RideSearch() {
 
   const handleSearch = () => {
     if (pickup && destination) {
-      setDistance(getEstimatedDistance());
+      setSearching(true);
+      setTimeout(() => {
+        setDistance(getEstimatedDistance());
+        setSearching(false);
+      }, 1500);
     }
+  };
+
+  const handleSwap = () => {
+    const temp = pickup;
+    setPickup(destination);
+    setDestination(temp);
   };
 
   const handleBook = () => {
@@ -78,6 +89,16 @@ export default function RideSearch() {
                     list="city-list"
                   />
                 </div>
+                <div className="flex justify-center -my-2 relative z-10">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-full bg-background shadow-sm"
+                    onClick={handleSwap}
+                  >
+                    <ArrowsUpDown className="h-4 w-4" />
+                  </Button>
+                </div>
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 rounded-full bg-red-500" />
                   <Input
@@ -88,11 +109,20 @@ export default function RideSearch() {
                     list="city-list"
                   />
                 </div>
-                <Button className="w-full" onClick={handleSearch}>Cari Ride</Button>
+                <Button className="w-full" onClick={handleSearch} disabled={searching || !pickup || !destination}>
+                  {searching ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Mencari...</> : 'Cari Ride'}
+                </Button>
               </CardContent>
             </Card>
 
-            {distance && (
+            {searching && (
+              <div className="py-12 flex flex-col items-center justify-center text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
+                <p className="text-sm">Mencari layanan tersedia...</p>
+              </div>
+            )}
+
+            {!searching && distance && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <p className="text-sm text-muted-foreground mb-3">
                   Estimasi jarak: <span className="font-semibold text-foreground">{distance} km</span>

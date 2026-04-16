@@ -12,14 +12,14 @@ export default function Footer() {
             <span className="text-lg font-bold text-background">PYU <span className="text-primary">GO</span></span>
           </div>
           <p className="text-sm leading-relaxed text-background/60">
-            Platform pemesanan hotel dan shuttle/travel terpercaya di Indonesia.
+            Platform pemesanan layanan shuttle dan ride-hailing terpercaya di Indonesia.
           </p>
         </div>
         <div>
           <h4 className="font-semibold text-background mb-3">Layanan</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/hotel" className="hover:text-primary transition-colors">Hotel</Link></li>
             <li><Link to="/shuttle" className="hover:text-primary transition-colors">Shuttle & Travel</Link></li>
+            <li><Link to="/ride" className="hover:text-primary transition-colors">Ride Hailing</Link></li>
           </ul>
         </div>
         <div>

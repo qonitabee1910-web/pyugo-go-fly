@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle2, MapPin, Car, Phone, Star, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import Layout from '@/components/Layout';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { dummyDrivers, formatRupiah } from '@/data/dummy';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/shared/ui/button';
+import { Card, CardContent } from '@/shared/ui/card';
+import Layout from '@/shared/components/Layout';
+import { useAuth } from '@/features/auth/AuthContext';
+import { supabase } from '@/shared/integrations/supabase/client';
+import { dummyDrivers, formatRupiah } from '@/shared/data/dummy';
+import { useToast } from '@/shared/hooks/use-toast';
 
 const steps = [
   { key: 'searching', label: 'Mencari Driver...', duration: 3000 },
@@ -37,15 +37,15 @@ export default function RideStatus() {
   const [stepIdx, setStepIdx] = useState(0);
   const [cancelled, setCancelled] = useState(false);
 
-  // Pick a random driver for display
-  const driver = dummyDrivers[Math.floor(Math.random() * dummyDrivers.length)];
+  // Pick a random driver once and keep it
+  const driver = useMemo(() => dummyDrivers[Math.floor(Math.random() * dummyDrivers.length)], []);
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate('/login'); return; }
 
     const fetchBooking = async () => {
-      const { data } = await supabase.from('bookings').select('*').eq('id', id).single();
+      const { data } = await supabase.from('bookings').select('*').eq('id', id).single<BookingData>();
       if (data) {
         setBooking(data);
         if (data.status === 'dibatalkan') setCancelled(true);

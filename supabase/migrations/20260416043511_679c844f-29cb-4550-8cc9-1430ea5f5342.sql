@@ -20,7 +20,7 @@ CREATE TABLE public.bookings (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   code TEXT NOT NULL UNIQUE,
-  type TEXT NOT NULL CHECK (type IN ('hotel', 'shuttle')),
+  type TEXT NOT NULL CHECK (type IN ('ride', 'shuttle')),
   status TEXT NOT NULL DEFAULT 'menunggu' CHECK (status IN ('menunggu', 'dikonfirmasi', 'selesai', 'dibatalkan')),
   details TEXT NOT NULL,
   guest_name TEXT NOT NULL,

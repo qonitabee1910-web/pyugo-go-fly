@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import Layout from '@/components/Layout';
-import { shuttles, formatRupiah } from '@/data/dummy';
+import { Button } from '@/shared/ui/button';
+import { Input } from '@/shared/ui/input';
+import { Badge } from '@/shared/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Separator } from '@/shared/ui/separator';
+import Layout from '@/shared/components/Layout';
+import { shuttles, formatRupiah } from '@/shared/data/dummy';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/features/auth/AuthContext';
+import { supabase } from '@/shared/integrations/supabase/client';
 
 export default function ShuttleDetail() {
   const { id } = useParams();
@@ -107,26 +107,49 @@ export default function ShuttleDetail() {
             <Card>
               <CardHeader><CardTitle className="text-lg">Pilih Kursi</CardTitle></CardHeader>
               <CardContent>
-                <div className="flex gap-4 mb-4 text-xs">
-                  <div className="flex items-center gap-1"><div className="h-4 w-4 rounded bg-muted border" /> Tersedia</div>
-                  <div className="flex items-center gap-1"><div className="h-4 w-4 rounded bg-primary" /> Dipilih</div>
-                  <div className="flex items-center gap-1"><div className="h-4 w-4 rounded bg-muted-foreground/30" /> Terisi</div>
+                <div className="flex gap-4 mb-6 text-xs justify-center bg-muted/30 p-3 rounded-lg">
+                  <div className="flex items-center gap-1.5"><div className="h-4 w-4 rounded bg-muted border" /> Tersedia</div>
+                  <div className="flex items-center gap-1.5"><div className="h-4 w-4 rounded bg-primary" /> Dipilih</div>
+                  <div className="flex items-center gap-1.5"><div className="h-4 w-4 rounded bg-muted-foreground/30" /> Terisi</div>
                 </div>
-                <div className="grid grid-cols-4 gap-2 max-w-xs">
-                  {Array.from({ length: shuttle.totalSeats }, (_, i) => i + 1).map((seat) => {
-                    const isOccupied = occupiedSeats.includes(seat);
-                    const isSelected = selectedSeats.includes(seat);
-                    return (
-                      <button key={seat} disabled={isOccupied} onClick={() => toggleSeat(seat)}
-                        className={`h-10 rounded-md text-sm font-medium transition-all ${
-                          isOccupied ? 'bg-muted-foreground/30 cursor-not-allowed text-muted-foreground'
-                          : isSelected ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted border hover:border-primary'
-                        }`}>
-                        {seat}
-                      </button>
-                    );
-                  })}
+                
+                <div className="max-w-[280px] mx-auto bg-muted/10 p-4 rounded-xl border border-dashed">
+                  <div className="flex justify-end mb-6">
+                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground uppercase">Sopir</div>
+                  </div>
+                  
+                  <div className="grid grid-cols-5 gap-2">
+                    {Array.from({ length: Math.ceil(shuttle.totalSeats / 4) * 4 }, (_, i) => {
+                      const seatNum = i + 1;
+                      const isAisle = (i + 1) % 5 === 3;
+                      
+                      if (isAisle) return <div key={`aisle-${i}`} className="h-10" />;
+                      
+                      // Map actual seat number (skipping aisle)
+                      const actualSeatIdx = i - Math.floor(i / 5);
+                      const actualSeatNum = actualSeatIdx + 1;
+                      
+                      if (actualSeatNum > shuttle.totalSeats) return <div key={`empty-${i}`} className="h-10" />;
+                      
+                      const isOccupied = occupiedSeats.includes(actualSeatNum);
+                      const isSelected = selectedSeats.includes(actualSeatNum);
+                      
+                      return (
+                        <button
+                          key={actualSeatNum}
+                          disabled={isOccupied}
+                          onClick={() => toggleSeat(actualSeatNum)}
+                          className={`h-10 w-10 rounded-lg text-xs font-bold transition-all flex items-center justify-center ${
+                            isOccupied ? 'bg-muted-foreground/20 cursor-not-allowed text-muted-foreground/50'
+                            : isSelected ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-105'
+                            : 'bg-background border border-border hover:border-primary hover:text-primary'
+                          }`}
+                        >
+                          {actualSeatNum}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -138,11 +161,11 @@ export default function ShuttleDetail() {
               <CardContent className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-1 block">Nama Penumpang</label>
-                  <Input value={passengerName} onChange={(e) => setPassengerName(e.target.value)} placeholder="Nama sesuai KTP" />
+                  <Input value={passengerName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassengerName(e.target.value)} placeholder="Nama sesuai KTP" />
                 </div>
                 <div>
                   <label className="text-sm font-medium mb-1 block">No. Telepon</label>
-                  <Input value={passengerPhone} onChange={(e) => setPassengerPhone(e.target.value)} placeholder="+62..." />
+                  <Input value={passengerPhone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassengerPhone(e.target.value)} placeholder="+62..." />
                 </div>
                 <Separator />
                 <div className="space-y-2 text-sm">

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Bus, Car, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
+import { Search, Bus, Car, MapPin, CalendarDays, Users, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import Layout from '@/shared/components/Layout';
-import { cities, promos, formatRupiah } from '@/shared/data/dummy';
+import { cities, promos } from '@/shared/data/dummy';
 
 export default function Index() {
   const navigate = useNavigate();

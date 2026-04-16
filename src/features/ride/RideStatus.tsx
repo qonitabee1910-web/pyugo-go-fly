@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, MapPin, Car, Phone, Star, Loader2 } from 'lucide-react';
+import { CheckCircle2, MapPin, Phone, Star, Loader2 } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent } from '@/shared/ui/card';
 import Layout from '@/shared/components/Layout';
@@ -42,19 +42,40 @@ export default function RideStatus() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { navigate('/login'); return; }
+    if (!user) {
+      navigate('/login');
+      return;
+    }
 
     const fetchBooking = async () => {
-      const { data } = await supabase.from('bookings').select('*').eq('id', id).single<BookingData>();
-      if (data) {
-        setBooking(data);
-        if (data.status === 'dibatalkan') setCancelled(true);
-        if (data.status === 'selesai') setStepIdx(steps.length - 1);
+      try {
+        const { data, error } = await supabase
+          .from('bookings')
+          .select('*')
+          .eq('id', id ?? '')
+          .single<BookingData>();
+
+        if (error) {
+          console.error('Error fetching booking:', error);
+          toast({ title: 'Gagal memuat pesanan', variant: 'destructive' });
+          return;
+        }
+
+        if (data) {
+          setBooking(data);
+          if (data.status === 'dibatalkan') setCancelled(true);
+          if (data.status === 'selesai') setStepIdx(steps.length - 1);
+        }
+      } catch (err) {
+        console.error('Unexpected error:', err);
+        toast({ title: 'Terjadi kesalahan', variant: 'destructive' });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
+
     fetchBooking();
-  }, [id, user, authLoading, navigate]);
+  }, [id, user, authLoading, navigate, toast]);
 
   // Auto-advance steps
   useEffect(() => {
@@ -68,15 +89,45 @@ export default function RideStatus() {
   // Mark as done when reaching last step
   useEffect(() => {
     if (stepIdx === steps.length - 1 && booking && !cancelled) {
-      supabase.from('bookings').update({ status: 'selesai' }).eq('id', booking.id).then();
+      const updateBooking = async () => {
+        try {
+          const { error } = await supabase
+            .from('bookings')
+            .update({ status: 'selesai' })
+            .eq('id', booking.id);
+
+          if (error) {
+            console.error('Error updating booking status:', error);
+          }
+        } catch (err) {
+          console.error('Unexpected error updating booking:', err);
+        }
+      };
+      updateBooking();
     }
   }, [stepIdx, booking, cancelled]);
 
   const handleCancel = async () => {
     if (!booking) return;
-    await supabase.from('bookings').update({ status: 'dibatalkan' }).eq('id', booking.id);
-    setCancelled(true);
-    toast({ title: 'Ride dibatalkan' });
+
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: 'dibatalkan' })
+        .eq('id', booking.id);
+
+      if (error) {
+        console.error('Error cancelling booking:', error);
+        toast({ title: 'Gagal membatalkan ride', variant: 'destructive' });
+        return;
+      }
+
+      setCancelled(true);
+      toast({ title: 'Ride berhasil dibatalkan' });
+    } catch (err) {
+      console.error('Unexpected error cancelling ride:', err);
+      toast({ title: 'Terjadi kesalahan', variant: 'destructive' });
+    }
   };
 
   if (authLoading || loading) {
@@ -100,7 +151,6 @@ export default function RideStatus() {
     );
   }
 
-  const currentStep = steps[stepIdx];
   const isDone = stepIdx === steps.length - 1;
 
   return (

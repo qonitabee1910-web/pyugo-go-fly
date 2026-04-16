@@ -39,19 +39,39 @@ export default function Orders() {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { navigate('/login'); return; }
+    if (!user) {
+      navigate('/login');
+      return;
+    }
 
     const fetchBookings = async () => {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (!error && data) setBookings(data as Booking[]);
-      setLoading(false);
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (fetchError) {
+          console.error('Error fetching bookings:', fetchError);
+          setError('Gagal memuat riwayat pesanan');
+          return;
+        }
+
+        if (data) {
+          setBookings(data as Booking[]);
+        }
+      } catch (err) {
+        console.error('Unexpected error:', err);
+        setError('Terjadi kesalahan saat memuat pesanan');
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchBookings();
   }, [user, authLoading, navigate]);
 
@@ -60,6 +80,24 @@ export default function Orders() {
       <Layout>
         <div className="flex items-center justify-center py-24">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+            <p>{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm text-red-600 hover:underline mt-2"
+            >
+              Coba Lagi
+            </button>
+          </div>
         </div>
       </Layout>
     );

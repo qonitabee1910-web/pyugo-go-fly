@@ -1,56 +1,62 @@
+# Modul Ride On Demand (Ojek Online) — PYU GO
+
+Menambahkan fitur ride-hailing seperti Gojek/Grab ke dalam aplikasi PYU GO.
+
+## Fitur Utama
+
+### 1. Tab Ride di Landing Page
+
+- Tambah tab ketiga "Ride" di search card (icon: Car)
+- Form: lokasi jemput, lokasi tujuan, tombol "Cari Ride"
+
+### 2. Data & Tipe
+
+- Interface `RideService` (tipe layanan: Motor, Pengemudi Wanita, Mobil) dengan harga per km, estimasi waktu
+- Interface `Driver` (nama, rating, kendaraan, plat nomor, foto)
+- Dummy data: daftar layanan ride + driver simulasi
+- Update `Booking` type untuk support `type: 'ride'`
+
+### 3. Halaman Pencarian Ride (`/ride`)
+
+- Input lokasi jemput & tujuan (dengan autocomplete kota)
+- Peta simulasi sederhana (Leafleat Map / OSM)
+- Pilihan tipe layanan (Motor / Pengemudi Wanita/ Mobil) dengan estimasi harga & waktu
+- Setiap tipe menampilkan: icon, nama, estimasi harga, estimasi waktu tiba
+
+### 4. Halaman Konfirmasi & Booking Ride (`/ride/book`)
+
+- Detail perjalanan: jemput, tujuan, jarak estimasi, tipe kendaraan
+- Info driver yang di-assign (simulasi random dari dummy)
+- Harga final
+- Form nama penumpang & nomor HP
+- Tombol "Pesan Ride"
+- Insert booking ke database (tipe: 'ride')
+
+### 5. Halaman Status Ride (`/ride/status/:id`)
+
+- Simulasi status perjalanan: Mencari Driver → Driver Ditemukan → Dalam Perjalanan → Selesai
+- Info driver, kendaraan, estimasi tiba
+- Tombol "Batalkan" (jika belum jalan)
+
+### 6. Integrasi Existing
+
+- **Navbar**: Tambah menu "Ride" dengan icon Car/Motorcycle
+- **Orders**: Tampilkan pesanan ride di riwayat pesanan (icon Car, filter baru)
+- **Database**: Update bookings table — field `type` sudah text, jadi bisa langsung pakai value `'ride'`
+
+## Perubahan Teknis
 
 
-# PYU GO — Aplikasi Booking Tiket Online
+| File                        | Perubahan                                              |
+| --------------------------- | ------------------------------------------------------ |
+| `src/data/dummy.ts`         | Tambah interface & data RideService, Driver            |
+| `src/pages/Index.tsx`       | Tambah tab "Ride" di search card                       |
+| `src/pages/RideSearch.tsx`  | Halaman baru — pilih layanan ride                      |
+| `src/pages/RideBook.tsx`    | Halaman baru — konfirmasi & booking                    |
+| `src/pages/RideStatus.tsx`  | Halaman baru — status perjalanan simulasi              |
+| `src/pages/Orders.tsx`      | Support tipe 'ride' di tampilan pesanan                |
+| `src/components/Navbar.tsx` | Tambah menu Ride                                       |
+| `src/App.tsx`               | Tambah route `/ride`, `/ride/book`, `/ride/status/:id` |
 
-Aplikasi booking hotel dan shuttle/travel dengan tampilan modern bertema biru, seluruh UI dalam Bahasa Indonesia, terinspirasi dari Airpaz.
 
-## Halaman & Fitur
-
-### 1. Landing Page (Beranda)
-- **Header/Navbar**: Logo PYU GO, menu navigasi (Hotel, Shuttle, Pesanan, Promo, Bantuan), tombol Login/Daftar
-- **Hero Section**: Banner besar dengan tagline "Pesan Tiket Mudah & Cepat"
-- **Tab Pencarian**: Dua tab — **Hotel** dan **Shuttle/Travel**
-  - **Hotel**: Kota tujuan, tanggal check-in/check-out, jumlah tamu & kamar, tombol Cari
-  - **Shuttle/Travel**: Kota asal, kota tujuan, tanggal keberangkatan, jumlah penumpang, tombol Cari
-- **Promo Banner Carousel**: Slider promo/diskon
-- **Destinasi Populer**: Grid kota populer dengan gambar
-- **Footer**: Info kontak, link navigasi, sosial media
-
-### 2. Hasil Pencarian Hotel
-- Filter sidebar: harga, rating bintang, fasilitas, tipe hotel
-- Sorting: harga terendah/tertinggi, rating, popularitas
-- Kartu hotel: foto, nama, rating, harga per malam, lokasi
-- Pagination
-
-### 3. Hasil Pencarian Shuttle/Travel
-- Filter: operator (Xtrans, Baraya, dll), waktu keberangkatan, harga
-- Sorting: harga, waktu, durasi
-- Kartu shuttle: operator, rute, jam berangkat/tiba, harga, kursi tersedia
-
-### 4. Detail & Booking Hotel
-- Galeri foto, deskripsi, fasilitas, peta lokasi
-- Pilihan tipe kamar dengan harga
-- Form data tamu (nama, email, telepon)
-- Ringkasan pemesanan & total harga
-- Tombol "Pesan Sekarang"
-
-### 5. Detail & Booking Shuttle
-- Info operator, rute, jadwal, fasilitas bus
-- Pilih kursi (seat map sederhana)
-- Form data penumpang
-- Ringkasan & tombol pesan
-
-### 6. Autentikasi
-- Halaman Login & Daftar (email + password) via Supabase Auth
-- Profil pengguna sederhana
-
-### 7. Riwayat Pesanan
-- Daftar semua pesanan dengan status (Menunggu, Dikonfirmasi, Selesai, Dibatalkan)
-- Detail pesanan: info booking, data tamu/penumpang, kode booking
-
-## Pendekatan Teknis
-- UI lengkap dengan data dummy yang terstruktur, siap disambungkan ke API nyata
-- Supabase untuk auth, database pesanan, dan edge functions (untuk proxy API pihak ketiga nanti)
-- Tema biru sebagai brand color PYU GO
-- Responsive design (mobile-friendly)
-
+Tidak perlu migrasi database karena field `type` pada tabel `bookings` sudah bertipe text.

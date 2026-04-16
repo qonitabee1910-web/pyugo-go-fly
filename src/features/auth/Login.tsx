@@ -51,7 +51,7 @@ export default function Login() {
     }
 
     toast.success('Berhasil masuk!');
-    navigate('/');
+    navigate('/beranda');
   };
 
   return (

@@ -6,8 +6,9 @@
 import { Location, SERVICE_TYPE_LABELS, Route } from '@/lib/types/rides';
 import { Button } from '@/shared/ui/button';
 import { Card } from '@/shared/ui/card';
-import { MapPinIcon, ClockIcon, Banknote, ChevronRight, AlertCircle } from 'lucide-react';
+import { MapPin, Clock, Banknote, ChevronRight, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/shared/ui/alert';
+import { ComponentStyles, PATTERNS } from '@/design-system';
 
 interface RideConfirmationScreenProps {
   pickupLocation: Location;
@@ -41,10 +42,10 @@ export function RideConfirmationScreen({
 
   const formatDuration = (seconds: number) => {
     const minutes = Math.round(seconds / 60);
-    if (minutes < 60) return `${minutes} min`;
+    if (minutes < 60) return `${minutes} menit`;
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
+    return `${hours}j ${mins}m`;
   };
 
   const serviceOptions = ['motorcycle', 'car', 'auto'] as const;
@@ -52,79 +53,100 @@ export function RideConfirmationScreen({
   return (
     <div className="fixed inset-0 bg-white z-40 flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold">Confirm Your Ride</h2>
+      <div className={`p-4 border-b border-gray-200 ${PATTERNS.stickyHeader}`}>
+        <h2 className={ComponentStyles.typography.h3}>Konfirmasi Pesanan</h2>
+        <p className={ComponentStyles.typography.bodySmall}>Periksa detail perjalanan Anda</p>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
-          {/* Route Summary */}
-          <Card className="p-4 space-y-3">
-            <h3 className="font-semibold text-sm">Route Details</h3>
+      <div className="flex-1 overflow-y-auto pb-32">
+        <div className="p-4 space-y-6">
+          {/* Route Summary Card */}
+          <div className={ComponentStyles.card.base}>
+            <h3 className={`${ComponentStyles.typography.h4} mb-4`}>Rute Perjalanan</h3>
 
             {/* Pickup */}
-            <div className="flex gap-3">
+            <div className="flex gap-4 mb-4">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                  📍
+                <div className={`w-10 h-10 rounded-full bg-green-100 flex items-center justify-center`}>
+                  <MapPin size={20} className="text-green-600" />
                 </div>
               </div>
-              <div className="flex-1">
-                <p className="text-xs text-gray-500">Pickup</p>
-                <p className="font-medium text-sm">{pickupLocation.address}</p>
+              <div className="flex-1 min-w-0">
+                <p className={ComponentStyles.typography.label}>Jemput</p>
+                <p className={`${ComponentStyles.typography.body} truncate`}>{pickupLocation.address}</p>
               </div>
             </div>
 
             {/* Route Line */}
-            <div className="ml-4 border-l-2 border-gray-300 h-8" />
+            <div className="ml-5 border-l-2 border-gradient-to-b from-green-400 to-red-400 h-8 mb-4" />
 
             {/* Dropoff */}
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                  📌
+                <div className={`w-10 h-10 rounded-full bg-red-100 flex items-center justify-center`}>
+                  <MapPin size={20} className="text-red-600" />
                 </div>
               </div>
-              <div className="flex-1">
-                <p className="text-xs text-gray-500">Dropoff</p>
-                <p className="font-medium text-sm">{dropoffLocation.address}</p>
+              <div className="flex-1 min-w-0">
+                <p className={ComponentStyles.typography.label}>Tujuan</p>
+                <p className={`${ComponentStyles.typography.body} truncate`}>{dropoffLocation.address}</p>
               </div>
             </div>
-          </Card>
+          </div>
 
-          {/* Trip Info */}
+          {/* Trip Info Grid */}
           {route && (
-            <div className="grid grid-cols-2 gap-3">
-              <Card className="p-3 text-center">
-                <div className="text-2xl mb-1">📏</div>
-                <p className="text-sm text-gray-600">Distance</p>
-                <p className="font-semibold">{formatDistance(route.distance_meters)}</p>
-              </Card>
-              <Card className="p-3 text-center">
-                <div className="text-2xl mb-1">⏱️</div>
-                <p className="text-sm text-gray-600">Est. Time</p>
-                <p className="font-semibold">{formatDuration(route.duration_seconds)}</p>
-              </Card>
+            <div className="grid grid-cols-2 gap-4">
+              <div className={ComponentStyles.card.elevated}>
+                <div className="p-4 text-center">
+                  <div className="text-3xl mb-2">📏</div>
+                  <p className={ComponentStyles.typography.caption}>Jarak</p>
+                  <p className={`${ComponentStyles.typography.h3} text-blue-600 mt-1`}>
+                    {formatDistance(route.distance_meters)}
+                  </p>
+                </div>
+              </div>
+
+              <div className={ComponentStyles.card.elevated}>
+                <div className="p-4 text-center">
+                  <div className="text-3xl mb-2">⏱️</div>
+                  <p className={ComponentStyles.typography.caption}>Waktu</p>
+                  <p className={`${ComponentStyles.typography.h3} text-blue-600 mt-1`}>
+                    {formatDuration(route.duration_seconds)}
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Service Type Selection */}
           <div>
-            <h3 className="font-semibold text-sm mb-3">Select Vehicle Type</h3>
-            <div className="space-y-2">
+            <h3 className={`${ComponentStyles.typography.h4} mb-4`}>Pilih Jenis Kendaraan</h3>
+            <div className="space-y-3">
               {serviceOptions.map((type) => (
                 <button
                   key={type}
                   onClick={() => onServiceTypeChange(type)}
-                  className={`w-full p-3 rounded-lg border-2 transition-all flex items-center justify-between ${
+                  className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
                     serviceType === type
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-blue-600 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <span className="font-medium">{SERVICE_TYPE_LABELS[type]}</span>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                  <div className="text-left">
+                    <p className={`${ComponentStyles.typography.body} font-semibold`}>
+                      {SERVICE_TYPE_LABELS[type]}
+                    </p>
+                    <p className={ComponentStyles.typography.caption}>
+                      {type === 'motorcycle' ? '🏍️ 1-2 orang' : type === 'car' ? '🚗 4-5 orang' : '🚐 6-8 orang'}
+                    </p>
+                  </div>
+                  {serviceType === type && (
+                    <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
+                      <span className="text-white text-sm">✓</span>
+                    </div>
+                  )}
                 </button>
               ))}
             </div>
@@ -132,55 +154,70 @@ export function RideConfirmationScreen({
 
           {/* Fare Breakdown */}
           {estimatedFare && (
-            <Card className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-              <h3 className="font-semibold text-sm mb-3">Fare Estimate</h3>
-              <div className="space-y-2 mb-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Base Fare</span>
-                  <span>₹10,000</span>
+            <div className={`${ComponentStyles.card.base} bg-gradient-to-br from-blue-50 to-indigo-50`}>
+              <h3 className={`${ComponentStyles.typography.h4} mb-4`}>Estimasi Tarif</h3>
+
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between items-center">
+                  <span className={ComponentStyles.typography.body}>Tarif Dasar</span>
+                  <span className={`${ComponentStyles.typography.body} font-semibold`}>Rp 10.000</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Distance</span>
-                  <span>
-                    {route && `₹${Math.round((route.distance_meters / 1000) * 2500)}`}
+
+                <div className="flex justify-between items-center">
+                  <span className={ComponentStyles.typography.body}>Jarak</span>
+                  <span className={`${ComponentStyles.typography.body} font-semibold`}>
+                    {route && `Rp ${Math.round((route.distance_meters / 1000) * 2500).toLocaleString('id-ID')}`}
                   </span>
                 </div>
-                <div className="border-t border-blue-200 my-2" />
-                <div className="flex justify-between font-semibold text-base">
-                  <span>Total</span>
-                  <span className="text-blue-600">₹{estimatedFare.toLocaleString()}</span>
+
+                <div className="border-t-2 border-blue-200 my-2" />
+
+                <div className="flex justify-between items-center">
+                  <span className={ComponentStyles.typography.h4}>Total</span>
+                  <span className={`${ComponentStyles.typography.h3} text-blue-600 font-bold`}>
+                    Rp {estimatedFare.toLocaleString('id-ID')}
+                  </span>
                 </div>
               </div>
-              <Alert className="bg-white border-blue-200">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-xs">
-                  Final fare may vary based on traffic and actual route taken
-                </AlertDescription>
-              </Alert>
-            </Card>
+
+              <div className={`${ComponentStyles.alert.base} ${ComponentStyles.alert.info}`}>
+                <AlertCircle size={20} className="flex-shrink-0" />
+                <p className={ComponentStyles.typography.caption}>
+                  Tarif akhir dapat berubah berdasarkan lalu lintas dan rute sebenarnya
+                </p>
+              </div>
+            </div>
           )}
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200 space-y-3">
-        <Button
+      {/* Footer CTA */}
+      <div className={`fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 space-y-3 z-40`}>
+        <button
           onClick={onConfirm}
           disabled={loading}
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
-          size="lg"
+          className={`${ComponentStyles.button.base} ${ComponentStyles.button.primary} ${ComponentStyles.button.lg} w-full`}
         >
-          {loading ? 'Confirming...' : `Request Ride • ₹${estimatedFare?.toLocaleString() || '0'}`}
-        </Button>
-        <Button
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Mengonfirmasi...
+            </span>
+          ) : (
+            <span className="flex items-center justify-center gap-2">
+              Pesan Sekarang • Rp {estimatedFare?.toLocaleString('id-ID') || '0'}
+              <ChevronRight size={20} />
+            </span>
+          )}
+        </button>
+
+        <button
           onClick={onCancel}
-          variant="outline"
-          className="w-full"
-          size="lg"
           disabled={loading}
+          className={`${ComponentStyles.button.base} ${ComponentStyles.button.outline} ${ComponentStyles.button.lg} w-full`}
         >
-          Cancel
-        </Button>
+          Batal
+        </button>
       </div>
     </div>
   );

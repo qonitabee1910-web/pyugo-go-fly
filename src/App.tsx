@@ -7,6 +7,7 @@ import { AuthProvider } from "@/features/auth/AuthContext";
 import ErrorBoundary from "@/shared/components/ErrorBoundary";
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
 import Index from "@/features/landing/Index";
+import AdaptiveDashboard from "@/features/adaptive-dashboard";
 import ShuttleSearch from "@/features/shuttle/ShuttleSearch";
 import ShuttleDetail from "@/features/shuttle/ShuttleDetail";
 import RideSearch from "@/features/ride/RideSearch";
@@ -16,6 +17,7 @@ import Login from "@/features/auth/Login";
 import Register from "@/features/auth/Register";
 import Orders from "@/features/orders/Orders";
 import Help from "@/features/help/Help";
+import DesignShowcase from "@/features/design-showcase/DesignShowcase";
 import NotFound from "@/shared/components/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +32,22 @@ const App = () => (
           <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route
+                path="/beranda"
+                element={
+                  <ProtectedRoute>
+                    <AdaptiveDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AdaptiveDashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/shuttle" element={<ShuttleSearch />} />
               <Route path="/shuttle/:id" element={<ShuttleDetail />} />
               <Route path="/ride" element={<RideSearch />} />
@@ -53,6 +71,7 @@ const App = () => (
                 }
               />
               <Route path="/bantuan" element={<Help />} />
+              <Route path="/design-system" element={<DesignShowcase />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

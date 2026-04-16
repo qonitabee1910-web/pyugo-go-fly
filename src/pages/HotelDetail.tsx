@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, MapPin, Wifi, Car, Dumbbell, UtensilsCrossed, Waves, SprayCan, ArrowLeft, Check } from 'lucide-react';
+import { Star, MapPin, ArrowLeft, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -9,16 +9,20 @@ import { Separator } from '@/components/ui/separator';
 import Layout from '@/components/Layout';
 import { hotels, formatRupiah } from '@/data/dummy';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function HotelDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const hotel = hotels.find((h) => h.id === id);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [guestName, setGuestName] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
   const [imgIdx, setImgIdx] = useState(0);
+  const [booking, setBooking] = useState(false);
 
   if (!hotel) {
     return (
@@ -33,10 +37,26 @@ export default function HotelDetail() {
 
   const room = hotel.rooms.find((r) => r.id === selectedRoom);
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
+    if (!user) { toast.error('Silakan login terlebih dahulu'); navigate('/login'); return; }
     if (!selectedRoom) { toast.error('Silakan pilih tipe kamar'); return; }
     if (!guestName || !guestEmail || !guestPhone) { toast.error('Lengkapi data tamu'); return; }
-    toast.success('Pemesanan berhasil! Kode booking: PYU-HTL-' + Date.now().toString().slice(-8));
+    if (!room) return;
+
+    setBooking(true);
+    const code = 'PYU-HTL-' + Date.now().toString().slice(-8);
+    const { error } = await supabase.from('bookings').insert({
+      user_id: user.id,
+      code,
+      type: 'hotel',
+      details: `${hotel.name} — ${room.name}`,
+      guest_name: guestName,
+      total_price: room.price,
+    });
+    setBooking(false);
+
+    if (error) { toast.error('Gagal memesan: ' + error.message); return; }
+    toast.success(`Pemesanan berhasil! Kode: ${code}`);
     navigate('/pesanan');
   };
 
@@ -48,27 +68,19 @@ export default function HotelDetail() {
         </Button>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left: Gallery + Info */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Gallery */}
             <div className="rounded-xl overflow-hidden">
               <img src={hotel.images[imgIdx]} alt={hotel.name} className="w-full h-64 md:h-96 object-cover" />
               {hotel.images.length > 1 && (
                 <div className="flex gap-2 p-2 bg-muted">
                   {hotel.images.map((img, i) => (
-                    <img
-                      key={i}
-                      src={img}
-                      alt=""
-                      onClick={() => setImgIdx(i)}
-                      className={`h-16 w-24 rounded-md object-cover cursor-pointer border-2 transition-all ${i === imgIdx ? 'border-primary' : 'border-transparent opacity-60'}`}
-                    />
+                    <img key={i} src={img} alt="" onClick={() => setImgIdx(i)}
+                      className={`h-16 w-24 rounded-md object-cover cursor-pointer border-2 transition-all ${i === imgIdx ? 'border-primary' : 'border-transparent opacity-60'}`} />
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Info */}
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Badge variant="secondary">{hotel.type}</Badge>
@@ -83,7 +95,6 @@ export default function HotelDetail() {
               <p className="leading-relaxed">{hotel.description}</p>
             </div>
 
-            {/* Facilities */}
             <div>
               <h2 className="text-lg font-bold mb-3">Fasilitas</h2>
               <div className="flex flex-wrap gap-2">
@@ -95,16 +106,13 @@ export default function HotelDetail() {
               </div>
             </div>
 
-            {/* Rooms */}
             <div>
               <h2 className="text-lg font-bold mb-3">Pilih Kamar</h2>
               <div className="space-y-3">
                 {hotel.rooms.map((r) => (
-                  <Card
-                    key={r.id}
+                  <Card key={r.id}
                     className={`cursor-pointer transition-all ${selectedRoom === r.id ? 'ring-2 ring-primary' : 'hover:border-primary/50'}`}
-                    onClick={() => setSelectedRoom(r.id)}
-                  >
+                    onClick={() => setSelectedRoom(r.id)}>
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
                         <p className="font-semibold">{r.name}</p>
@@ -126,12 +134,9 @@ export default function HotelDetail() {
             </div>
           </div>
 
-          {/* Right: Booking form */}
           <div>
             <Card className="sticky top-20">
-              <CardHeader>
-                <CardTitle className="text-lg">Detail Pemesanan</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle className="text-lg">Detail Pemesanan</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-1 block">Nama Lengkap</label>
@@ -145,9 +150,7 @@ export default function HotelDetail() {
                   <label className="text-sm font-medium mb-1 block">No. Telepon</label>
                   <Input value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} placeholder="+62..." />
                 </div>
-
                 <Separator />
-
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Hotel</span>
@@ -167,9 +170,8 @@ export default function HotelDetail() {
                     </>
                   )}
                 </div>
-
-                <Button className="w-full" size="lg" onClick={handleBooking} disabled={!selectedRoom}>
-                  Pesan Sekarang
+                <Button className="w-full" size="lg" onClick={handleBooking} disabled={!selectedRoom || booking}>
+                  {booking ? 'Memproses...' : 'Pesan Sekarang'}
                 </Button>
               </CardContent>
             </Card>

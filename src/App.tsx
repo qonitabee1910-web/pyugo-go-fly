@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import HotelSearch from "./pages/HotelSearch";
 import HotelDetail from "./pages/HotelDetail";
@@ -22,18 +23,20 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/hotel" element={<HotelSearch />} />
-          <Route path="/hotel/:id" element={<HotelDetail />} />
-          <Route path="/shuttle" element={<ShuttleSearch />} />
-          <Route path="/shuttle/:id" element={<ShuttleDetail />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/daftar" element={<Register />} />
-          <Route path="/pesanan" element={<Orders />} />
-          <Route path="/bantuan" element={<Help />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/hotel" element={<HotelSearch />} />
+            <Route path="/hotel/:id" element={<HotelDetail />} />
+            <Route path="/shuttle" element={<ShuttleSearch />} />
+            <Route path="/shuttle/:id" element={<ShuttleDetail />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/daftar" element={<Register />} />
+            <Route path="/pesanan" element={<Orders />} />
+            <Route path="/bantuan" element={<Help />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Hotel, Bus, ClipboardList, Tag, HelpCircle, User } from 'lucide-react';
+import { Menu, X, Hotel, Bus, ClipboardList, Tag, HelpCircle, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { label: 'Hotel', path: '/hotel', icon: Hotel },
@@ -14,6 +15,7 @@ const navItems = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   return (
     <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur border-b">
@@ -27,7 +29,6 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop */}
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
             <Link
@@ -43,41 +44,49 @@ export default function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-2">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">Masuk</Button>
-          </Link>
-          <Link to="/daftar">
-            <Button size="sm">Daftar</Button>
-          </Link>
+          {user ? (
+            <>
+              <span className="text-sm text-muted-foreground">{user.email}</span>
+              <Button variant="ghost" size="sm" onClick={signOut} className="gap-1">
+                <LogOut className="h-4 w-4" /> Keluar
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login"><Button variant="ghost" size="sm">Masuk</Button></Link>
+              <Link to="/daftar"><Button size="sm">Daftar</Button></Link>
+            </>
+          )}
         </div>
 
-        {/* Mobile toggle */}
         <button className="md:hidden p-2" onClick={() => setOpen(!open)}>
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {open && (
         <div className="md:hidden border-t bg-card px-4 pb-4 space-y-1">
           {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium hover:bg-muted"
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
+            <Link key={item.path} to={item.path} onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium hover:bg-muted">
+              <item.icon className="h-4 w-4" /> {item.label}
             </Link>
           ))}
           <div className="flex gap-2 pt-2">
-            <Link to="/login" className="flex-1" onClick={() => setOpen(false)}>
-              <Button variant="outline" className="w-full" size="sm">Masuk</Button>
-            </Link>
-            <Link to="/daftar" className="flex-1" onClick={() => setOpen(false)}>
-              <Button className="w-full" size="sm">Daftar</Button>
-            </Link>
+            {user ? (
+              <Button variant="outline" className="w-full" size="sm" onClick={() => { signOut(); setOpen(false); }}>
+                <LogOut className="h-4 w-4 mr-1" /> Keluar
+              </Button>
+            ) : (
+              <>
+                <Link to="/login" className="flex-1" onClick={() => setOpen(false)}>
+                  <Button variant="outline" className="w-full" size="sm">Masuk</Button>
+                </Link>
+                <Link to="/daftar" className="flex-1" onClick={() => setOpen(false)}>
+                  <Button className="w-full" size="sm">Daftar</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

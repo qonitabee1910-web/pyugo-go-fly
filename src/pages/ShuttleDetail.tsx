@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Users, Check } from 'lucide-react';
+import { ArrowLeft, Clock, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -9,14 +9,18 @@ import { Separator } from '@/components/ui/separator';
 import Layout from '@/components/Layout';
 import { shuttles, formatRupiah } from '@/data/dummy';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ShuttleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const shuttle = shuttles.find((s) => s.id === id);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [passengerName, setPassengerName] = useState('');
   const [passengerPhone, setPassengerPhone] = useState('');
+  const [booking, setBooking] = useState(false);
 
   if (!shuttle) {
     return (
@@ -37,10 +41,25 @@ export default function ShuttleDetail() {
 
   const occupiedSeats = Array.from({ length: shuttle.totalSeats - shuttle.seatsAvailable }, (_, i) => i + 1);
 
-  const handleBooking = () => {
+  const handleBooking = async () => {
+    if (!user) { toast.error('Silakan login terlebih dahulu'); navigate('/login'); return; }
     if (selectedSeats.length === 0) { toast.error('Silakan pilih kursi'); return; }
     if (!passengerName || !passengerPhone) { toast.error('Lengkapi data penumpang'); return; }
-    toast.success('Pemesanan berhasil! Kode booking: PYU-SHT-' + Date.now().toString().slice(-8));
+
+    setBooking(true);
+    const code = 'PYU-SHT-' + Date.now().toString().slice(-8);
+    const { error } = await supabase.from('bookings').insert({
+      user_id: user.id,
+      code,
+      type: 'shuttle',
+      details: `${shuttle.operator} ${shuttle.origin} → ${shuttle.destination} — ${selectedSeats.length} kursi (${selectedSeats.join(', ')})`,
+      guest_name: passengerName,
+      total_price: shuttle.price * selectedSeats.length,
+    });
+    setBooking(false);
+
+    if (error) { toast.error('Gagal memesan: ' + error.message); return; }
+    toast.success(`Pemesanan berhasil! Kode: ${code}`);
     navigate('/pesanan');
   };
 
@@ -53,14 +72,12 @@ export default function ShuttleDetail() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            {/* Info */}
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <h1 className="text-2xl font-bold">{shuttle.operator}</h1>
                   <Badge variant="secondary">{shuttle.type}</Badge>
                 </div>
-
                 <div className="flex items-center gap-6 mb-6">
                   <div className="text-center">
                     <p className="text-2xl font-bold">{shuttle.departureTime}</p>
@@ -78,23 +95,17 @@ export default function ShuttleDetail() {
                     <p className="text-sm text-muted-foreground">{shuttle.destination}</p>
                   </div>
                 </div>
-
                 <h3 className="font-semibold mb-2">Fasilitas</h3>
                 <div className="flex flex-wrap gap-2">
                   {shuttle.facilities.map((f) => (
-                    <Badge key={f} variant="outline" className="gap-1">
-                      <Check className="h-3 w-3" /> {f}
-                    </Badge>
+                    <Badge key={f} variant="outline" className="gap-1"><Check className="h-3 w-3" /> {f}</Badge>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Seat Map */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Pilih Kursi</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle className="text-lg">Pilih Kursi</CardTitle></CardHeader>
               <CardContent>
                 <div className="flex gap-4 mb-4 text-xs">
                   <div className="flex items-center gap-1"><div className="h-4 w-4 rounded bg-muted border" /> Tersedia</div>
@@ -106,18 +117,12 @@ export default function ShuttleDetail() {
                     const isOccupied = occupiedSeats.includes(seat);
                     const isSelected = selectedSeats.includes(seat);
                     return (
-                      <button
-                        key={seat}
-                        disabled={isOccupied}
-                        onClick={() => toggleSeat(seat)}
+                      <button key={seat} disabled={isOccupied} onClick={() => toggleSeat(seat)}
                         className={`h-10 rounded-md text-sm font-medium transition-all ${
-                          isOccupied
-                            ? 'bg-muted-foreground/30 cursor-not-allowed text-muted-foreground'
-                            : isSelected
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted border hover:border-primary'
-                        }`}
-                      >
+                          isOccupied ? 'bg-muted-foreground/30 cursor-not-allowed text-muted-foreground'
+                          : isSelected ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted border hover:border-primary'
+                        }`}>
                         {seat}
                       </button>
                     );
@@ -127,12 +132,9 @@ export default function ShuttleDetail() {
             </Card>
           </div>
 
-          {/* Booking form */}
           <div>
             <Card className="sticky top-20">
-              <CardHeader>
-                <CardTitle className="text-lg">Detail Pemesanan</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle className="text-lg">Detail Pemesanan</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-1 block">Nama Penumpang</label>
@@ -142,9 +144,7 @@ export default function ShuttleDetail() {
                   <label className="text-sm font-medium mb-1 block">No. Telepon</label>
                   <Input value={passengerPhone} onChange={(e) => setPassengerPhone(e.target.value)} placeholder="+62..." />
                 </div>
-
                 <Separator />
-
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Rute</span>
@@ -164,9 +164,8 @@ export default function ShuttleDetail() {
                     <span className="text-primary">{formatRupiah(shuttle.price * selectedSeats.length)}</span>
                   </div>
                 </div>
-
-                <Button className="w-full" size="lg" onClick={handleBooking} disabled={selectedSeats.length === 0}>
-                  Pesan Sekarang
+                <Button className="w-full" size="lg" onClick={handleBooking} disabled={selectedSeats.length === 0 || booking}>
+                  {booking ? 'Memproses...' : 'Pesan Sekarang'}
                 </Button>
               </CardContent>
             </Card>

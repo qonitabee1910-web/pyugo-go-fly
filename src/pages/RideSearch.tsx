@@ -7,17 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import Layout from '@/components/Layout';
 import { cities, rideServices, formatRupiah } from '@/data/dummy';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-// Fix leaflet default icon
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
 
 const serviceIcons: Record<string, any> = {
   bike: Bike,
@@ -25,7 +14,6 @@ const serviceIcons: Record<string, any> = {
   car: Car,
 };
 
-// Simple distance estimation (random 3-15km for demo)
 const getEstimatedDistance = () => Math.floor(Math.random() * 13) + 3;
 
 export default function RideSearch() {
@@ -65,19 +53,14 @@ export default function RideSearch() {
           {/* Left: Map */}
           <div className="lg:col-span-2">
             <div className="rounded-xl overflow-hidden h-[400px] border">
-              <MapContainer
-                center={[-6.2088, 106.8456]}
-                zoom={12}
-                style={{ height: '100%', width: '100%' }}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={[-6.2088, 106.8456]}>
-                  <Popup>Lokasi Jemput</Popup>
-                </Marker>
-              </MapContainer>
+              <iframe
+                title="Peta lokasi"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=106.7%2C-6.3%2C106.95%2C-6.1&layer=mapnik&marker=-6.2088%2C106.8456"
+              />
             </div>
           </div>
 

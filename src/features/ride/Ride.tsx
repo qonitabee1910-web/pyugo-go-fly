@@ -41,7 +41,7 @@ export function Ride() {
     rideState.state.pickupLocation?.longitude || null
   );
 
-  const { ride, assignment, loading: rideLoading } = useRealtimeRide(rideState.state.rideId, (updatedRide) => {
+  useRealtimeRide(rideState.state.rideId, (updatedRide) => {
     rideState.setRideStatus(updatedRide.status as RideStatus);
 
     // Auto-transition screens based on ride status
@@ -109,7 +109,7 @@ export function Ride() {
     try {
       if (!user) throw new Error('User not authenticated');
 
-      const ride = await rideState.createRide(user.id);
+      await rideState.createRide(user.id);
 
       setAppState((prev) => ({
         ...prev,
@@ -126,7 +126,8 @@ export function Ride() {
             setAppState((prev) => ({
               ...prev,
               assignedDriver: {
-                id: mockDriver.user_id,
+                id: `driver-${Date.now()}`,
+                user_id: mockDriver.user_id,
                 name: mockDriver.name,
                 rating: mockDriver.rating,
                 vehicle_type: mockDriver.vehicle_type,
@@ -158,11 +159,12 @@ export function Ride() {
     goToScreen('completed');
   };
 
-  const handleRating = async (rating: number, comment: string) => {
+  const handleRating = async (_rating: number, _comment: string) => {
     try {
       if (rideState.state.rideId) {
         await rideState.completeRide();
         // In production, save rating to database
+        // TODO: Use _rating and _comment to save user feedback
       }
     } catch (error) {
       console.error('Error submitting rating:', error);
@@ -293,7 +295,7 @@ export function Ride() {
             distance={rideState.state.route?.distance_meters || 5000}
             duration={rideState.state.route?.duration_seconds || 600}
             estimatedFare={rideState.state.estimatedFare || 0}
-            actualFare={rideState.state.estimatedFare}
+            actualFare={rideState.state.estimatedFare || undefined}
             onRate={handleRating}
             onNewRide={handleNewRide}
           />

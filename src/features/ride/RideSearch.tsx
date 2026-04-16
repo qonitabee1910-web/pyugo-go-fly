@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Bike, Car, UserRound, Clock, ArrowRight, ArrowsUpDown, Loader2, LucideIcon } from 'lucide-react';
+import { MapPin, Bike, Car, UserRound, Clock, ArrowRight, ArrowUpDown, Loader2, LucideIcon } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Card, CardContent } from '@/shared/ui/card';
@@ -96,7 +96,7 @@ export default function RideSearch() {
                     className="h-8 w-8 rounded-full bg-background shadow-sm"
                     onClick={handleSwap}
                   >
-                    <ArrowsUpDown className="h-4 w-4" />
+                    <ArrowUpDown className="h-4 w-4" />
                   </Button>
                 </div>
                 <div className="relative">

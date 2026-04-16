@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Bus, Car, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronLeft, ChevronRight, ArrowsUpDown } from 'lucide-react';
+import { Search, Bus, Car, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronLeft, ChevronRight, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
@@ -92,7 +92,7 @@ export default function Index() {
                         className="h-8 w-8 rounded-full bg-background shadow-sm md:rotate-90"
                         onClick={swapShuttle}
                       >
-                        <ArrowsUpDown className="h-4 w-4" />
+                        <ArrowUpDown className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="relative">
@@ -138,7 +138,7 @@ export default function Index() {
                         className="h-8 w-8 rounded-full bg-background shadow-sm md:rotate-90"
                         onClick={swapRide}
                       >
-                        <ArrowsUpDown className="h-4 w-4" />
+                        <ArrowUpDown className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="relative">

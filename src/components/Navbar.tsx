@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Hotel, Bus, ClipboardList, Tag, HelpCircle, User, LogOut } from 'lucide-react';
+import { Menu, X, Hotel, Bus, Car, ClipboardList, Tag, HelpCircle, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { label: 'Hotel', path: '/hotel', icon: Hotel },
   { label: 'Shuttle', path: '/shuttle', icon: Bus },
+  { label: 'Ride', path: '/ride', icon: Car },
   { label: 'Pesanan', path: '/pesanan', icon: ClipboardList },
   { label: 'Promo', path: '/#promo', icon: Tag },
   { label: 'Bantuan', path: '/bantuan', icon: HelpCircle },

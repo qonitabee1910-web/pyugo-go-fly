@@ -9,6 +9,9 @@ import HotelSearch from "./pages/HotelSearch";
 import HotelDetail from "./pages/HotelDetail";
 import ShuttleSearch from "./pages/ShuttleSearch";
 import ShuttleDetail from "./pages/ShuttleDetail";
+import RideSearch from "./pages/RideSearch";
+import RideBook from "./pages/RideBook";
+import RideStatus from "./pages/RideStatus";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Orders from "./pages/Orders";
@@ -30,6 +33,9 @@ const App = () => (
             <Route path="/hotel/:id" element={<HotelDetail />} />
             <Route path="/shuttle" element={<ShuttleSearch />} />
             <Route path="/shuttle/:id" element={<ShuttleDetail />} />
+            <Route path="/ride" element={<RideSearch />} />
+            <Route path="/ride/book" element={<RideBook />} />
+            <Route path="/ride/status/:id" element={<RideStatus />} />
             <Route path="/login" element={<Login />} />
             <Route path="/daftar" element={<Register />} />
             <Route path="/pesanan" element={<Orders />} />

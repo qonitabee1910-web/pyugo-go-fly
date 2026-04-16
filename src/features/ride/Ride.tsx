@@ -9,7 +9,7 @@ import { useRideState } from '@/hooks/useRideState';
 import { useRealtimeRide } from '@/hooks/useRealtimeRide';
 import { useNearbyDrivers } from '@/hooks/useNearbyDrivers';
 import { RideService } from '@/integrations/ride.service';
-import { Location, RideStatus, DEMO_LOCATIONS } from '@/lib/types/rides';
+import { Location, RideStatus, DEMO_LOCATIONS, Driver } from '@/lib/types/rides';
 
 import { MapScreen } from './components/MapScreen';
 import { LocationPickerScreen } from './components/LocationPickerScreen';
@@ -30,7 +30,7 @@ type Screen =
 interface AppState {
   currentScreen: Screen;
   searchingStartTime: number;
-  assignedDriver: any | null;
+  assignedDriver: Driver | null;
 }
 
 export function Ride() {
@@ -63,6 +63,7 @@ export function Ride() {
     // In production, use actual geolocation
     rideState.setCurrentLocation(DEMO_LOCATIONS.current);
     rideState.setPickupLocation(DEMO_LOCATIONS.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle screen navigation

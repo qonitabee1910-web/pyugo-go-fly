@@ -243,4 +243,45 @@ export class RideService {
       fare: Math.round(fare),
     };
   }
+
+  /**
+   * Dispatch driver to ride using Supabase Edge Function
+   * 
+   * Calls the dispatch-driver Edge Function which:
+   * 1. Finds nearby drivers within 5km
+   * 2. Sorts by distance, rating, idle time
+   * 3. Sends offers sequentially with 10s timeout
+   * 4. Assigns first driver that accepts
+   * 
+   * @param rideId - Ride ID to dispatch
+   * @param pickupLat - Pickup latitude
+   * @param pickupLng - Pickup longitude
+   * @returns Driver ID if successful, throws error otherwise
+   */
+  static async dispatchDriver(
+    rideId: string,
+    pickupLat: number,
+    pickupLng: number
+  ): Promise<string> {
+    try {
+      const { data, error } = await supabase.functions.invoke('dispatch-driver', {
+        body: {
+          ride_id: rideId,
+          pickup_lat: pickupLat,
+          pickup_lng: pickupLng,
+        },
+      });
+
+      if (error || !data?.success) {
+        const errorMsg = data?.error || error?.message || 'Unknown dispatch error';
+        throw new Error(`Driver dispatch failed: ${errorMsg}`);
+      }
+
+      return data.driver_id;
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to dispatch driver';
+      console.error('Dispatch error:', errorMsg);
+      throw err;
+    }
+  }
 }

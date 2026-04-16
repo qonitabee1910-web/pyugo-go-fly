@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Hotel, Bus, Clock, CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Hotel, Bus, Car, Clock, CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -81,7 +81,7 @@ export default function Orders() {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
                         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          {booking.type === 'hotel' ? <Hotel className="h-5 w-5 text-primary" /> : <Bus className="h-5 w-5 text-primary" />}
+                          {booking.type === 'hotel' ? <Hotel className="h-5 w-5 text-primary" /> : booking.type === 'ride' ? <Car className="h-5 w-5 text-primary" /> : <Bus className="h-5 w-5 text-primary" />}
                         </div>
                         <div>
                           <div className="flex items-center gap-2 mb-1">

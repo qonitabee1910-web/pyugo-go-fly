@@ -178,5 +178,39 @@ export const dummyBookings: Booking[] = [
   { id: 'b4', code: 'PYU-SHT-20260412', type: 'shuttle', status: 'dibatalkan', date: '2026-04-12', totalPrice: 175000, details: 'DayTrans Jakarta → Bandung — 1 penumpang', guestName: 'Budi Santoso' },
 ];
 
+export interface RideService {
+  id: string;
+  name: string;
+  type: 'motor' | 'women' | 'car';
+  pricePerKm: number;
+  icon: string;
+  description: string;
+  estimatedArrival: string;
+}
+
+export interface Driver {
+  id: string;
+  name: string;
+  rating: number;
+  vehicle: string;
+  plateNumber: string;
+  photo: string;
+  phone: string;
+}
+
+export const rideServices: RideService[] = [
+  { id: 'rs1', name: 'PYU Ride', type: 'motor', pricePerKm: 2500, icon: 'bike', description: 'Motor cepat & hemat', estimatedArrival: '3-5 menit' },
+  { id: 'rs2', name: 'PYU Ladies', type: 'women', pricePerKm: 3000, icon: 'user-round', description: 'Pengemudi wanita untuk penumpang wanita', estimatedArrival: '5-8 menit' },
+  { id: 'rs3', name: 'PYU Car', type: 'car', pricePerKm: 5000, icon: 'car', description: 'Mobil nyaman, AC, 4 penumpang', estimatedArrival: '5-10 menit' },
+];
+
+export const dummyDrivers: Driver[] = [
+  { id: 'd1', name: 'Agus Pratama', rating: 4.9, vehicle: 'Honda Vario 160', plateNumber: 'B 1234 XYZ', photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face', phone: '081234567890' },
+  { id: 'd2', name: 'Siti Nurhaliza', rating: 4.8, vehicle: 'Honda Beat', plateNumber: 'B 5678 ABC', photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face', phone: '081298765432' },
+  { id: 'd3', name: 'Budi Setiawan', rating: 4.7, vehicle: 'Toyota Avanza', plateNumber: 'B 9012 DEF', photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face', phone: '081345678901' },
+  { id: 'd4', name: 'Dewi Lestari', rating: 4.9, vehicle: 'Honda Scoopy', plateNumber: 'B 3456 GHI', photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face', phone: '081456789012' },
+  { id: 'd5', name: 'Rudi Hartono', rating: 4.6, vehicle: 'Toyota Innova', plateNumber: 'B 7890 JKL', photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face', phone: '081567890123' },
+];
+
 export const formatRupiah = (n: number) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);

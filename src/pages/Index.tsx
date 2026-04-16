@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Hotel, Bus, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Hotel, Bus, Car, MapPin, CalendarDays, Users, ArrowRight, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,6 +13,8 @@ export default function Index() {
   const [hotelCity, setHotelCity] = useState('');
   const [shuttleOrigin, setShuttleOrigin] = useState('');
   const [shuttleDest, setShuttleDest] = useState('');
+  const [ridePickup, setRidePickup] = useState('');
+  const [rideDest, setRideDest] = useState('');
   const [promoIdx, setPromoIdx] = useState(0);
 
   const searchHotel = () => {
@@ -21,6 +23,10 @@ export default function Index() {
 
   const searchShuttle = () => {
     navigate(`/shuttle?origin=${encodeURIComponent(shuttleOrigin)}&dest=${encodeURIComponent(shuttleDest)}`);
+  };
+
+  const searchRide = () => {
+    navigate(`/ride?pickup=${encodeURIComponent(ridePickup)}&dest=${encodeURIComponent(rideDest)}`);
   };
 
   return (
@@ -55,9 +61,10 @@ export default function Index() {
           >
             <div className="bg-card text-card-foreground rounded-2xl shadow-2xl p-6">
               <Tabs defaultValue="hotel">
-                <TabsList className="w-full grid grid-cols-2 mb-6">
+                <TabsList className="w-full grid grid-cols-3 mb-6">
                   <TabsTrigger value="hotel" className="gap-2"><Hotel className="h-4 w-4" /> Hotel</TabsTrigger>
                   <TabsTrigger value="shuttle" className="gap-2"><Bus className="h-4 w-4" /> Shuttle</TabsTrigger>
+                  <TabsTrigger value="ride" className="gap-2"><Car className="h-4 w-4" /> Ride</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="hotel">
@@ -119,6 +126,34 @@ export default function Index() {
                   </div>
                   <Button className="w-full mt-4 gap-2" size="lg" onClick={searchShuttle}>
                     <Search className="h-4 w-4" /> Cari Shuttle
+                  </Button>
+                </TabsContent>
+
+                <TabsContent value="ride">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Lokasi jemput"
+                        className="pl-9"
+                        value={ridePickup}
+                        onChange={(e) => setRidePickup(e.target.value)}
+                        list="city-list"
+                      />
+                    </div>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Lokasi tujuan"
+                        className="pl-9"
+                        value={rideDest}
+                        onChange={(e) => setRideDest(e.target.value)}
+                        list="city-list"
+                      />
+                    </div>
+                  </div>
+                  <Button className="w-full mt-4 gap-2" size="lg" onClick={searchRide}>
+                    <Search className="h-4 w-4" /> Cari Ride
                   </Button>
                 </TabsContent>
               </Tabs>

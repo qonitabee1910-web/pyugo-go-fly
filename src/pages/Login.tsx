@@ -5,15 +5,22 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Layout from '@/components/Layout';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) { toast.error('Lengkapi semua data'); return; }
+    setLoading(true);
+    const { error } = await signIn(email, password);
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
     toast.success('Berhasil masuk!');
     navigate('/');
   };
@@ -36,7 +43,9 @@ export default function Login() {
                 <label className="text-sm font-medium mb-1 block">Password</label>
                 <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
               </div>
-              <Button type="submit" className="w-full" size="lg">Masuk</Button>
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {loading ? 'Memproses...' : 'Masuk'}
+              </Button>
             </form>
             <p className="text-center text-sm text-muted-foreground mt-4">
               Belum punya akun? <Link to="/daftar" className="text-primary font-medium hover:underline">Daftar</Link>

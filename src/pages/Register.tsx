@@ -5,18 +5,25 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Layout from '@/components/Layout';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password) { toast.error('Lengkapi semua data'); return; }
     if (password.length < 6) { toast.error('Password minimal 6 karakter'); return; }
-    toast.success('Akun berhasil dibuat!');
+    setLoading(true);
+    const { error } = await signUp(email, password, name);
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success('Akun berhasil dibuat! Silakan cek email untuk verifikasi.');
     navigate('/login');
   };
 
@@ -42,7 +49,9 @@ export default function Register() {
                 <label className="text-sm font-medium mb-1 block">Password</label>
                 <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Minimal 6 karakter" />
               </div>
-              <Button type="submit" className="w-full" size="lg">Daftar</Button>
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {loading ? 'Memproses...' : 'Daftar'}
+              </Button>
             </form>
             <p className="text-center text-sm text-muted-foreground mt-4">
               Sudah punya akun? <Link to="/login" className="text-primary font-medium hover:underline">Masuk</Link>
